@@ -10,7 +10,6 @@ def backend_agent(backend_tasks):
     resp = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role":"user","content":prompt}],
-        temperature= = 0.0,
-        
+        temperature=0.0,
     )
     return resp.choices[0].message.content
