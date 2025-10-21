@@ -1,11 +1,29 @@
 import json
 import os
 import re
-import pathlib
 from coordinator import coordinator_agent
 from frontend import frontend_agent
 from backend import backend_agent
 from extract_utils import extract_section
+
+def create_backend_files(backend_code: str, base_dir: str = "backend"):
+    """
+    Parses the backend code markdown and creates the file structure.
+    """
+    print("\nStep 5: Creating backend files...")
+    os.makedirs(base_dir, exist_ok=True)
+
+    # Regex to find file paths in markdown and their corresponding code blocks
+    # Looks for patterns like: `app/main.py`**: ```python ... ```
+    pattern = re.compile(r"`([\w\./\-_]+)`\*\*:\s*```(\w+)\n(.*?)\n```", re.DOTALL)
+    matches = pattern.findall(backend_code)
+
+    for file_path, lang, code in matches:
+        full_path = os.path.join(base_dir, file_path)
+        os.makedirs(os.path.dirname(full_path), exist_ok=True)
+        with open(full_path, "w", encoding="utf-8") as f:
+            f.write(code.strip())
+        print(f"✅ Created backend file: {full_path}")
 
 def main():
     print("AI Agent System — Project Brief to Technical Tasks\n")
@@ -53,11 +71,11 @@ def main():
     with open("output.json", "w", encoding="utf-8") as f:
         json.dump(project_output, f, indent=2, ensure_ascii=False)
 
-    with open("frontend_output.js", "w", encoding="utf-8") as f:
-        f.write(frontend_code)
+    # The user did not request changes to frontend file handling, so we keep it.
+    # In a future step, this could also be parsed like the backend.
+    with open("frontend_output.js", "w", encoding="utf-8") as f: f.write(frontend_code)
+    create_backend_files(backend_code, "backend_generated")
 
-    with open("backend_output.py", "w", encoding="utf-8") as f:
-        f.write(backend_code)
 
     print("All outputs saved ")
 
